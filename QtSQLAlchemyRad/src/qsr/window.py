@@ -4,7 +4,7 @@ from PyQt4.QtGui import *
 from PyQt4 import QtWebKit
 from inputs import *
 from changes import changes
-from conf import iconPath, dataPath, getModels
+from conf import iconPath, dataPath, getModels, i18n
 from model import orm
 import operator
 import sqlalchemy.exc
@@ -471,7 +471,7 @@ class QGeneralTableView(QTableView):
                 self.connect(action, SIGNAL("triggered()"), show(title, windowClass))
             contextmenu.addSeparator()
         
-        info = QAction(u"Подробная информация", self)
+        info = QAction(i18n(u"Подробная информация"), self)
         self.connect(info, SIGNAL("triggered()"), self.showInfoWindow)
         contextmenu.addAction(info)
         
@@ -479,7 +479,7 @@ class QGeneralTableView(QTableView):
         if referencesMenuItem:                    
             contextmenu.addAction(referencesMenuItem)
             
-        copy = QAction(u"Копировать в буфер обмена", self)
+        copy = QAction(i18n(u"Копировать в буфер обмена"), self)
         self.connect(copy, SIGNAL("triggered()"), self.copyIntoClipboard)
         contextmenu.addAction(copy)
             
@@ -502,9 +502,9 @@ class QGeneralTableView(QTableView):
         if not tableReferences:
             return False
         
-        references = QAction( u'Связи с другими таблицами', self)    
+        references = QAction( i18n(u'Связи с другими таблицами'), self)    
         references_menu = QMenu(self)
-        references_menu.setTitle(u"Связи с другими таблицами")
+        references_menu.setTitle(i18n(u"Связи с другими таблицами"))
         references.setMenu(references_menu)
         
         
@@ -779,14 +779,14 @@ class QSqlAlchemyTableWindow(QMainWindow):
         self.selectTimer.start()
         
     def createToolbar(self):
-        add = QAction(QIcon(iconPath('Add.png')), u'Добавить элемент', self)        
+        add = QAction(QIcon(iconPath('Add.png')), i18n(u'Добавить элемент'), self)        
         self.connect(add, SIGNAL('triggered()'), self.showAddWidget)
       
-        delete = QAction(QIcon(iconPath('Delete.png')), u'Удалить выбранные элементы', self)
+        delete = QAction(QIcon(iconPath('Delete.png')), i18n(u'Удалить выбранные элементы'), self)
         delete.setShortcut("Delete")
         self.connect(delete, SIGNAL('triggered()'), self.deleteItems)
                 
-        refresh = QAction(QIcon(iconPath('refresh.png')), u"Обновить", self)
+        refresh = QAction(QIcon(iconPath('refresh.png')), i18n(u"Обновить"), self)
         self.connect(refresh, SIGNAL("triggered()"), self.updateTableView)
         
         #_importOneS = QAction(QIcon(iconPath('oneslogo.png')), u"Иморт из 1C", self)
@@ -794,7 +794,7 @@ class QSqlAlchemyTableWindow(QMainWindow):
         
          
                 
-        self.tabletoolbar = self.addToolBar(u'Управление элементами')        
+        self.tabletoolbar = self.addToolBar(i18n(u'Управление элементами'))        
         self.tabletoolbar.setMovable(False)
         self.tabletoolbar.setIconSize(QSize(32, 32))
         
@@ -814,7 +814,7 @@ class QSqlAlchemyTableWindow(QMainWindow):
     
     def createFilterToolbar(self):
         self.searchinput = QFilterInput(self.table)       
-        self.searchtoolbar = QToolBar(u"Поиск")
+        self.searchtoolbar = QToolBar(i18n(u"Поиск"))
         self.searchtoolbar.setMovable(False)
         self.addToolBar(Qt.TopToolBarArea, self.searchtoolbar)        
         spacer = QWidget()
@@ -822,7 +822,7 @@ class QSqlAlchemyTableWindow(QMainWindow):
         self.searchtoolbar.addWidget(spacer)         
         self.searchtoolbar.addWidget(self.searchinput)
         
-        filter = QAction(QIcon(iconPath('Search.png')), u'Расширенный поиск', self)
+        filter = QAction(QIcon(iconPath('Search.png')), i18n(u'Расширенный поиск'), self)
         filter.setShortcut(self.tr("Ctrl+F"))
         self.connect(filter, SIGNAL('triggered()'), self.showFilterWidget)
         self.searchtoolbar.addAction(filter)
@@ -852,13 +852,13 @@ class QSqlAlchemyTableWindow(QMainWindow):
             def __init__(self, parent=None):
                 QDialog.__init__(self, parent)
                 self.setWindowIcon(QIcon(iconPath('Delete.png')))
-                self.setWindowTitle(u"Потверждение удаления")
+                self.setWindowTitle(i18n(u"Потверждение удаления"))
                 layout = QGridLayout()
-                ok = QPushButton(u"Удалить")
+                ok = QPushButton(i18n(u"Удалить"))
                 self.connect(ok, SIGNAL("clicked()"), self.accept)
-                cancel = QPushButton(u"Отмена")
+                cancel = QPushButton(i18n(u"Отмена"))
                 self.connect(cancel, SIGNAL("clicked()"), self.reject)
-                layout.addWidget(QLabel(u"Вы действительно хотите удалить выбранные элементы?"), 0, 0)
+                layout.addWidget(QLabel(i18n(u"Вы действительно хотите удалить выбранные элементы?")), 0, 0)
                 butlayout = QHBoxLayout()
                 butlayout.addWidget(ok)
                 butlayout.addWidget(cancel)
@@ -890,7 +890,8 @@ class QSqlAlchemyTableWindow(QMainWindow):
             try:
                 orm().commit()
             except sqlalchemy.exc.IntegrityError, error:
-                QMessageBox.warning(self, u"Не удалось удалить объект", u"Сначала удалите элементы родителем которы является данный объект.")
+                QMessageBox.warning(self, i18n(u"Не удалось удалить объект"), 
+                                    i18n(u"Сначала удалите элементы родителем которы является данный объект."))
                 orm().rollback()
                 return stop()
             self.i += 1
@@ -902,8 +903,8 @@ class QSqlAlchemyTableWindow(QMainWindow):
         timer = QTimer(self)
         self.connect(timer, SIGNAL("timeout()"), delete)
         if QDeleteDialog(self).exec_():
-            self.progress = QProgressDialog(u"Удаление данных", u"Отмена", 0, len(ids), parent=self)
-            self.progress.setWindowTitle(u"Удаление...")
+            self.progress = QProgressDialog(i18n(u"Удаление данных"), i18n(u"Отмена"), 0, len(ids), parent=self)
+            self.progress.setWindowTitle(i18n(u"Удаление..."))
             self.progress.setFixedWidth(300)
             self.progress.show()
             timer.start()  
@@ -940,10 +941,10 @@ class QSqlAlchemyTableWindow(QMainWindow):
             orm().add(item)
             orm().commit()          
         except sqlalchemy.exc.IntegrityError, e:
-            QMessageBox.information(self, u'Ошибка sqlalchemy.', str(e))
+            QMessageBox.information(self, i18n(u'Ошибка sqlalchemy.'), str(e))
             orm().rollback()        
         except ValueError, e:
-            QMessageBox.information(self, u'Неправильное значение', str(e))
+            QMessageBox.information(self, i18n(u'Неправильное значение'), str(e))
             orm().rollback()        
     
         self.updateTableView()
@@ -960,7 +961,7 @@ class QSqlAlchemyTableWindowWidgetAdd(QWidget):
         QWidget.__init__(self, parent, Qt.WindowCloseButtonHint)
         self.modelClass = modelClass
 
-        self.setWindowTitle(u'Добавление элемента')
+        self.setWindowTitle(i18n(u'Добавление элемента'))
         self.setWindowIcon(QIcon(iconPath('Add.png')))
         self.setMinimumWidth(400)
         
@@ -982,7 +983,7 @@ class QSqlAlchemyTableWindowWidgetAdd(QWidget):
             layout.addRow(QLabel(column.info['title'] + ':'), field)
         
         if not okButton:
-            self.ok = QPushButton(u'Добавить элемент')
+            self.ok = QPushButton(i18n(u'Добавить элемент'))
             self.connect(self.ok, SIGNAL("clicked()"), parent.createItem)
         else:
             self.ok = okButton
@@ -1045,7 +1046,7 @@ class QSqlAlchemyTableWindowWidgetFilterExtentded(QMainWindow):
     '''Виджет для фильтрации таблицы'''
     def __init__(self, table, datatable, parent=None):
         super(QSqlAlchemyTableWindowWidgetFilterExtentded, self).__init__(parent, Qt.Tool | Qt.Dialog)        
-        self.setWindowTitle(u"Расширенный поиск")
+        self.setWindowTitle(i18n(u"Расширенный поиск"))
         self.setWindowIcon(QIcon(iconPath('Search.png')))
         self.table = table
         self.datatable = datatable
@@ -1182,7 +1183,7 @@ class QTableSelectForm(QSqlAlchemyTableWindow):
     '''Форма для выбора элемента'''
     def __init__(self, model, parent=None):
         super(QTableSelectForm, self).__init__(model, tableview=QTableSelectFormTableView, parent=parent, flags=Qt.WindowStaysOnTopHint)
-        self.setWindowTitle(u"Выберите элемент")
+        self.setWindowTitle(i18n(u"Выберите элемент"))
         self.resize(QSize(1100, 600))        
         
         

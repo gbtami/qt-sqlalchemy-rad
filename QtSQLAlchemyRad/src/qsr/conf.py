@@ -20,3 +20,6 @@ def tmpPath(path):
 
 def getModels(): 
     return models
+
+def i18n(text):
+    return text
